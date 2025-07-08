@@ -1,0 +1,2 @@
+# Don't track secrets
+SmartFeedbackPortal.API/appsettings.Development.json
