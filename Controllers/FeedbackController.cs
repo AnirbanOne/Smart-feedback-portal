@@ -15,25 +15,38 @@ namespace SmartFeedbackPortal.API.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly AzureAISentimentService _sentimentService;
+        private readonly AzureBlobStorageService _blobService;
 
-        public FeedbackController(ApplicationDbContext context, AzureAISentimentService sentimentService)
+        public FeedbackController(
+            ApplicationDbContext context,
+            AzureAISentimentService sentimentService,
+            AzureBlobStorageService blobService)
         {
             _context = context;
             _sentimentService = sentimentService;
+            _blobService = blobService;
         }
 
+        // ✅ Submit Feedback
         [HttpPost]
         [Authorize(Roles = "User,Admin")]
-        public async Task<IActionResult> SubmitFeedback(CreateFeedbackDto dto)
+        public async Task<IActionResult> SubmitFeedback([FromForm] SubmitFeedbackDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? imageUrl = null;
+
+            if (dto.Image != null)
+            {
+                imageUrl = await _blobService.UploadFileAsync(dto.Image);
+            }
+
             var sentiment = await _sentimentService.AnalyzeSentimentAsync(dto.Content);
 
             var feedback = new Feedback
             {
                 Category = dto.Category,
                 Content = dto.Content,
-                ImageUrl = dto.ImageUrl,
+                ImageUrl = imageUrl,
                 Sentiment = sentiment,
                 UserId = userId
             };
@@ -44,6 +57,7 @@ namespace SmartFeedbackPortal.API.Controllers
             return Ok(new { message = "Feedback submitted successfully", sentiment });
         }
 
+        // ✅ Get My Feedbacks
         [HttpGet("my")]
         [Authorize(Roles = "User,Admin")]
         public async Task<ActionResult<IEnumerable<FeedbackResponseDto>>> GetMyFeedback()
@@ -52,24 +66,8 @@ namespace SmartFeedbackPortal.API.Controllers
 
             var feedbacks = await _context.Feedbacks
                 .Where(f => f.UserId == userId)
-                .Select(f => new FeedbackResponseDto
-                {
-                    Category = f.Category,
-                    Content = f.Content,
-                    Sentiment = f.Sentiment,
-                    SubmittedAt = f.SubmittedAt
-                })
-                .ToListAsync();
-
-            return Ok(feedbacks);
-        }
-
-        [HttpGet("all")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<FeedbackResponseDto>>> GetAllFeedback()
-        {
-            var feedbacks = await _context.Feedbacks
                 .Include(f => f.User)
+                .OrderByDescending(f => f.SubmittedAt)
                 .Select(f => new FeedbackResponseDto
                 {
                     Category = f.Category,
@@ -79,6 +77,32 @@ namespace SmartFeedbackPortal.API.Controllers
                     User = new UserDto
                     {
                         FullName = f.User.FullName,
+                        Email = f.User.Email
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(feedbacks);
+        }
+
+        // ✅ Admin: View All Feedbacks
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<FeedbackResponseDto>>> GetAllFeedback()
+        {
+            var feedbacks = await _context.Feedbacks
+                .Include(f => f.User)
+                .OrderByDescending(f => f.SubmittedAt)
+                .Select(f => new FeedbackResponseDto
+                {
+                    Category = f.Category,
+                    Content = f.Content,
+                    Sentiment = f.Sentiment,
+                    SubmittedAt = f.SubmittedAt,
+                    User = new UserDto
+                    {
+                        FullName = f.User.FullName,
+                        Email = f.User.Email
                     }
                 })
                 .ToListAsync();

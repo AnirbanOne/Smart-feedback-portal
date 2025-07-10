@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartFeedbackPortal.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eb18b604e0b7bac9b2a75aae2f8eec5af822e825")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fcec0abbbf1bab21b90ca15fccb3de4228e770a9")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartFeedbackPortal.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartFeedbackPortal.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

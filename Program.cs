@@ -39,6 +39,9 @@ builder.Services.AddIdentity<User, IdentityRole>()
 // =======================================================
 builder.Services.AddScoped<AzureAISentimentService>();
 
+// Add Azure Blob Service
+builder.Services.AddScoped<AzureBlobStorageService>();
+
 // =======================================================
 // ✅ JWT Authentication
 // =======================================================
