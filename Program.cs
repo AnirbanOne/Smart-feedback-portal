@@ -102,7 +102,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:5173", "https://yellow-field-0f7f20600.2.azurestaticapps.net", "https://stellular-druid-9da101.netlify.app")
+        policy => policy.WithOrigins("http://localhost:5173", "https://yellow-field-0f7f20600.2.azurestaticapps.net", "https://stellular-druid-9da101.netlify.app", "https://trial123-e6cje0eda5h3ajfb.southeastasia-01.azurewebsites.net", "https://sfp-frontend-btdzhtgqf4hmepb3.southeastasia-01.azurewebsites.net")
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
